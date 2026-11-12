@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Market Signal Desk</title>
+  <link rel="stylesheet" href="/desk.css">
+  <script defer src="/desk.js"></script>
+</head>
+<body>
+<header class="mast">
+  <div class="brand"><span class="mark" aria-hidden="true">M</span><div><strong>Market Signal Desk</strong><small>金融市场监控</small></div></div>
+  <nav aria-label="面板导航"><a href="#overview">总览</a><a href="#sources">接入设置</a></nav>
+</header>
+<main id="overview">
+  <section class="hero">
+    <div><span class="status" id="mode">连接本机中</span><h1>市场监控台</h1><p id="mode-note">查看行情输入、数据质量和告警记录。</p></div>
+    <button class="primary" id="run" type="button" disabled>刷新监控</button>
+  </section>
+  <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+  <section class="metrics" aria-label="近 24 小时复盘">
+    <article><span>近 24 小时 · 信号</span><strong id="alerts">—</strong><small>达到当前阈值的记录</small></article>
+    <article><span>近 24 小时 · 拦截</span><strong id="blocked">—</strong><small>过期或时间异常的数据</small></article>
+    <article><span>近 24 小时 · 公告</span><strong id="notices">—</strong><small>已读取的去重公告</small></article>
+    <article><span>手机推送</span><strong class="compact" id="push-state">—</strong><small>可选 Bark 通道</small></article>
+  </section>
+  <div class="panels">
+    <section class="card chart-card" aria-labelledby="trend-title">
+      <div class="card-head"><div><h2 id="trend-title">数据走势</h2><p id="plot-caption">等待行情输入</p></div><span class="price" id="last-price">—</span></div>
+      <canvas id="plot" height="220" aria-label="所选数据源的最近有效价格走势"></canvas>
+      <div class="table-wrap"><table><caption class="sr-only">近期输入数据</caption><thead><tr><th>代码</th><th>时间</th><th>价格</th><th>变动</th><th>校验</th></tr></thead><tbody id="readings"></tbody></table></div>
+    </section>
+    <section class="card" aria-labelledby="event-title">
+      <div class="card-head"><div><h2 id="event-title">事件记录</h2><p>信号、数据拦截与公开公告</p></div></div>
+      <ul class="events" id="events"></ul>
+    </section>
+  </div>
+  <section class="card setup" id="sources" aria-labelledby="setup-title">
+    <div class="card-head"><div><h2 id="setup-title">接入设置</h2><p>先选择数据源。Bark 推送和桌面入口可随时设置。</p></div></div>
+    <form id="settings">
+      <div class="setup-grid">
+        <fieldset>
+          <legend>行情与公告</legend>
+          <label for="source">行情来源</label>
+          <select id="source"><option value="demo">示例数据</option><option value="csv">本地 CSV</option><option value="alpha">Alpha Vantage · 日线</option></select>
+          <div id="alpha-fields" hidden>
+            <label for="symbol">交易代码</label><input id="symbol" type="text" maxlength="20" placeholder="例如 IBM" autocomplete="off">
+            <label for="alpha-key">Alpha Vantage API Key</label><input id="alpha-key" type="password" maxlength="200" autocomplete="new-password">
+            <div class="helper"><a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">申请 API Key ↗</a><a href="https://www.alphavantage.co/documentation/" target="_blank" rel="noopener noreferrer">查询支持的交易代码 ↗</a></div>
+          </div>
+          <div id="csv-fields" hidden>
+            <label for="csv">CSV 文件</label><input id="csv" type="file" accept=".csv,text/csv">
+            <small>包含 timestamp、symbol、value、change_pct 四列。先保存 CSV 来源。</small>
+            <button type="button" id="import">导入 CSV</button>
+          </div>
+          <label for="threshold">变动阈值 (%)</label><input id="threshold" type="number" min="0.1" max="50" step="0.1" value="2" required>
+          <label class="check"><input type="checkbox" id="fed"> 读取美联储公开公告</label>
+          <label class="check"><input type="checkbox" id="scheduled"> 应用运行时每 90 分钟刷新联网来源</label>
+          <p id="source-status" class="helper"></p>
+        </fieldset>
+        <fieldset>
+          <legend>Bark 手机推送</legend>
+          <div class="helper"><a href="https://bark.day.app/" target="_blank" rel="noopener noreferrer">在 iPhone 安装 Bark ↗</a></div>
+          <label for="bark-key">设备 Key</label><input id="bark-key" type="password" maxlength="200" autocomplete="new-password">
+          <small>打开 Bark，复制示例推送地址中的设备 Key，粘贴在这里。</small>
+          <label class="check"><input type="checkbox" id="push"> 推送通过校验的 Alpha Vantage 日线信号</label>
+          <button type="button" id="test">发送测试通知</button>
+          <button type="button" id="clear">清除 Bark Key</button>
+        </fieldset>
+      </div>
+      <div class="setup-actions"><button class="primary" type="submit">保存设置</button><button type="button" id="desktop">创建桌面入口</button><button type="button" id="stop">停止本机监控</button></div>
+      <p id="setup-feedback" class="feedback" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+<footer>本机运行 · 行情和告警供监控记录使用</footer>
+</body>
+</html>
